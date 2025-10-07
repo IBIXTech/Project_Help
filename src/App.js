@@ -20,31 +20,23 @@ import {
   DialogActions,
   Snackbar,
   Alert,
+  CircularProgress,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-// Create a custom theme
 const theme = createTheme({
   palette: {
-    primary: {
-      main: "#1976d2",
-    },
-    secondary: {
-      main: "#dc004e",
-    },
+    primary: { main: "#1976d2" },
+    secondary: { main: "#dc004e" },
   },
-  typography: {
-    h4: {
-      fontWeight: 600,
-    },
-  },
+  typography: { h4: { fontWeight: 600 } },
 });
 
-// Move tab components outside the main App component to prevent unnecessary re-renders
 const ProjectSubmissionTab = ({
   projectForm,
   handleProjectFormChange,
   handleProjectSubmit,
+  loading,
 }) => (
   <Paper elevation={3} sx={{ p: 4, maxWidth: 800, mx: "auto", mt: 3 }}>
     <Typography
@@ -65,7 +57,6 @@ const ProjectSubmissionTab = ({
         margin="normal"
         required
       />
-
       <TextField
         fullWidth
         label="Mobile Number"
@@ -75,7 +66,6 @@ const ProjectSubmissionTab = ({
         margin="normal"
         required
       />
-
       <TextField
         fullWidth
         label="Email"
@@ -86,7 +76,6 @@ const ProjectSubmissionTab = ({
         margin="normal"
         required
       />
-
       <TextField
         fullWidth
         label="Project ID"
@@ -129,7 +118,6 @@ const ProjectSubmissionTab = ({
         placeholder="Paste your HTML code here..."
         required
       />
-
       <TextField
         fullWidth
         label="CSS Code"
@@ -142,7 +130,6 @@ const ProjectSubmissionTab = ({
         placeholder="Paste your CSS code here..."
         required
       />
-
       <TextField
         fullWidth
         label="JavaScript Code"
@@ -156,14 +143,29 @@ const ProjectSubmissionTab = ({
         required
       />
 
-      <Button type="submit" variant="contained" size="large" sx={{ mt: 3 }}>
-        Submit Project
+      <Button
+        type="submit"
+        variant="contained"
+        size="large"
+        sx={{ mt: 3 }}
+        disabled={loading}
+      >
+        {loading ? (
+          <CircularProgress size={24} sx={{ color: "white" }} />
+        ) : (
+          "Submit Project"
+        )}
       </Button>
     </Box>
   </Paper>
 );
 
-const QueryTab = ({ queryForm, handleQueryFormChange, handleQuerySubmit }) => (
+const QueryTab = ({
+  queryForm,
+  handleQueryFormChange,
+  handleQuerySubmit,
+  loading,
+}) => (
   <Paper elevation={3} sx={{ p: 4, maxWidth: 800, mx: "auto", mt: 3 }}>
     <Typography
       variant="h5"
@@ -183,7 +185,6 @@ const QueryTab = ({ queryForm, handleQueryFormChange, handleQuerySubmit }) => (
         margin="normal"
         required
       />
-
       <TextField
         fullWidth
         label="Mobile Number"
@@ -193,7 +194,6 @@ const QueryTab = ({ queryForm, handleQueryFormChange, handleQuerySubmit }) => (
         margin="normal"
         required
       />
-
       <TextField
         fullWidth
         label="Registered Email ID"
@@ -234,14 +234,29 @@ const QueryTab = ({ queryForm, handleQueryFormChange, handleQuerySubmit }) => (
         required
       />
 
-      <Button type="submit" variant="contained" size="large" sx={{ mt: 3 }}>
-        Submit Query
+      <Button
+        type="submit"
+        variant="contained"
+        size="large"
+        sx={{ mt: 3 }}
+        disabled={loading}
+      >
+        {loading ? (
+          <CircularProgress size={24} sx={{ color: "white" }} />
+        ) : (
+          "Submit Query"
+        )}
       </Button>
     </Box>
   </Paper>
 );
 
-const HelpTab = ({ helpForm, handleHelpFormChange, handleHelpSubmit }) => (
+const HelpTab = ({
+  helpForm,
+  handleHelpFormChange,
+  handleHelpSubmit,
+  loading,
+}) => (
   <Paper elevation={3} sx={{ p: 4, maxWidth: 800, mx: "auto", mt: 3 }}>
     <Typography
       variant="h5"
@@ -261,7 +276,6 @@ const HelpTab = ({ helpForm, handleHelpFormChange, handleHelpSubmit }) => (
         margin="normal"
         required
       />
-
       <TextField
         fullWidth
         label="Mobile Number"
@@ -271,7 +285,6 @@ const HelpTab = ({ helpForm, handleHelpFormChange, handleHelpSubmit }) => (
         margin="normal"
         required
       />
-
       <TextField
         fullWidth
         label="Registered Email ID"
@@ -282,7 +295,6 @@ const HelpTab = ({ helpForm, handleHelpFormChange, handleHelpSubmit }) => (
         margin="normal"
         required
       />
-
       <TextField
         fullWidth
         label="Explain Your Problem"
@@ -296,8 +308,18 @@ const HelpTab = ({ helpForm, handleHelpFormChange, handleHelpSubmit }) => (
         required
       />
 
-      <Button type="submit" variant="contained" size="large" sx={{ mt: 3 }}>
-        Submit Help Request
+      <Button
+        type="submit"
+        variant="contained"
+        size="large"
+        sx={{ mt: 3 }}
+        disabled={loading}
+      >
+        {loading ? (
+          <CircularProgress size={24} sx={{ color: "white" }} />
+        ) : (
+          "Submit Help Request"
+        )}
       </Button>
     </Box>
   </Paper>
@@ -308,8 +330,12 @@ function App() {
   const [openDialog, setOpenDialog] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-  // Tab 1 - Project Submission Form State
+  const [loadingProject, setLoadingProject] = useState(false);
+  const [loadingQuery, setLoadingQuery] = useState(false);
+  const [loadingHelp, setLoadingHelp] = useState(false);
+
   const [projectForm, setProjectForm] = useState({
     studentName: "",
     mobileNumber: "",
@@ -321,7 +347,6 @@ function App() {
     jsCode: "",
   });
 
-  // Tab 2 - Query Form State
   const [queryForm, setQueryForm] = useState({
     name: "",
     mobileNumber: "",
@@ -330,7 +355,6 @@ function App() {
     queryType: "",
   });
 
-  // Tab 3 - Help Form State
   const [helpForm, setHelpForm] = useState({
     name: "",
     mobileNumber: "",
@@ -338,130 +362,40 @@ function App() {
     problem: "",
   });
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-  };
+  const handleTabChange = (e, newValue) => setTabValue(newValue);
+  const handleSnackbarClose = () => setSnackbarOpen(false);
 
-  const handleProjectFormChange = (e) => {
-    const { name, value } = e.target;
-    setProjectForm({
-      ...projectForm,
-      [name]: value,
-    });
-  };
+  const handleProjectFormChange = (e) =>
+    setProjectForm({ ...projectForm, [e.target.name]: e.target.value });
+  const handleQueryFormChange = (e) =>
+    setQueryForm({ ...queryForm, [e.target.name]: e.target.value });
+  const handleHelpFormChange = (e) =>
+    setHelpForm({ ...helpForm, [e.target.name]: e.target.value });
 
-  const handleQueryFormChange = (e) => {
-    const { name, value } = e.target;
-    setQueryForm({
-      ...queryForm,
-      [name]: value,
-    });
-  };
-
-  const handleHelpFormChange = (e) => {
-    const { name, value } = e.target;
-    setHelpForm({
-      ...helpForm,
-      [name]: value,
-    });
-  };
-
-  const handleProjectSubmit = (e) => {
+  const handleProjectSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !projectForm.studentName ||
-      !projectForm.mobileNumber ||
-      !projectForm.email ||
-      !projectForm.projectId ||
-      !projectForm.program ||
-      !projectForm.htmlCode ||
-      !projectForm.cssCode ||
-      !projectForm.jsCode
-    ) {
-      setSnackbarMessage("Please fill all required fields");
-      setSnackbarOpen(true);
-      return;
-    } else {
-      console.log(JSON.stringify(projectForm));
-      fetch(process.env.REACT_APP_PS, {
+    setLoadingProject(true);
+    try {
+      const res = await fetch(process.env.REACT_APP_PS, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(projectForm),
       });
-      setOpenDialog(true);
-    }
-  };
-
-  const handleQuerySubmit = (e) => {
-    e.preventDefault();
-    if (
-      !queryForm.name ||
-      !queryForm.mobileNumber ||
-      !queryForm.email ||
-      !queryForm.query ||
-      !queryForm.queryType
-    ) {
-      setSnackbarMessage("Please fill all required fields");
+      if (res.ok) {
+        setOpenDialog(true);
+      } else throw new Error("Submission failed");
+    } catch {
+      setSnackbarMessage("Error submitting project. Please try again.");
+      setSnackbarSeverity("error");
       setSnackbarOpen(true);
-      return;
     }
-
-    fetch(process.env.REACT_APP_QF, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(queryForm),
-    });
-    setSnackbarMessage("Query submitted successfully!");
-    setSnackbarOpen(true);
-    setQueryForm({
-      name: "",
-      mobileNumber: "",
-      email: "",
-      query: "",
-      queryType: "",
-    });
-  };
-
-  const handleHelpSubmit = (e) => {
-    e.preventDefault();
-    if (
-      !helpForm.name ||
-      !helpForm.mobileNumber ||
-      !helpForm.email ||
-      !helpForm.problem
-    ) {
-      setSnackbarMessage("Please fill all required fields");
-      setSnackbarOpen(true);
-      return;
-    }
-
-    fetch(process.env.REACT_APP_HF, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(helpForm),
-    });
-    setSnackbarMessage("Help request submitted successfully!");
-    setSnackbarOpen(true);
-    setHelpForm({
-      name: "",
-      mobileNumber: "",
-      email: "",
-      problem: "",
-    });
+    setLoadingProject(false);
   };
 
   const handleDialogClose = () => {
     setOpenDialog(false);
     setSnackbarMessage("Project submitted successfully!");
+    setSnackbarSeverity("success");
     setSnackbarOpen(true);
     setProjectForm({
       studentName: "",
@@ -475,8 +409,59 @@ function App() {
     });
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
+  const handleQuerySubmit = async (e) => {
+    e.preventDefault();
+    setLoadingQuery(true);
+    try {
+      const res = await fetch(process.env.REACT_APP_QF, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(queryForm),
+      });
+      if (res.ok) {
+        setSnackbarMessage("Query submitted successfully!");
+        setSnackbarSeverity("success");
+        setQueryForm({
+          name: "",
+          mobileNumber: "",
+          email: "",
+          query: "",
+          queryType: "",
+        });
+      } else throw new Error("Submission failed");
+    } catch {
+      setSnackbarMessage("Error submitting query. Please try again.");
+      setSnackbarSeverity("error");
+    }
+    setSnackbarOpen(true);
+    setLoadingQuery(false);
+  };
+
+  const handleHelpSubmit = async (e) => {
+    e.preventDefault();
+    setLoadingHelp(true);
+    try {
+      const res = await fetch(process.env.REACT_APP_HF, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(helpForm),
+      });
+      if (res.ok) {
+        setSnackbarMessage("Help request submitted successfully!");
+        setSnackbarSeverity("success");
+        setHelpForm({
+          name: "",
+          mobileNumber: "",
+          email: "",
+          problem: "",
+        });
+      } else throw new Error("Submission failed");
+    } catch {
+      setSnackbarMessage("Error submitting help request. Please try again.");
+      setSnackbarSeverity("error");
+    }
+    setSnackbarOpen(true);
+    setLoadingHelp(false);
   };
 
   return (
@@ -484,19 +469,17 @@ function App() {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
               IBIX Student Portal
             </Typography>
           </Toolbar>
         </AppBar>
 
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Tabs value={tabValue} onChange={handleTabChange} centered>
-            <Tab label="Project Submission" />
-            <Tab label="Query" />
-            <Tab label="Help" />
-          </Tabs>
-        </Box>
+        <Tabs value={tabValue} onChange={handleTabChange} centered>
+          <Tab label="Project Submission" />
+          <Tab label="Query" />
+          <Tab label="Help" />
+        </Tabs>
 
         <Box sx={{ p: 3 }}>
           {tabValue === 0 && (
@@ -504,6 +487,7 @@ function App() {
               projectForm={projectForm}
               handleProjectFormChange={handleProjectFormChange}
               handleProjectSubmit={handleProjectSubmit}
+              loading={loadingProject}
             />
           )}
           {tabValue === 1 && (
@@ -511,6 +495,7 @@ function App() {
               queryForm={queryForm}
               handleQueryFormChange={handleQueryFormChange}
               handleQuerySubmit={handleQuerySubmit}
+              loading={loadingQuery}
             />
           )}
           {tabValue === 2 && (
@@ -518,11 +503,11 @@ function App() {
               helpForm={helpForm}
               handleHelpFormChange={handleHelpFormChange}
               handleHelpSubmit={handleHelpSubmit}
+              loading={loadingHelp}
             />
           )}
         </Box>
 
-        {/* Success Dialog for Project Submission */}
         <Dialog open={openDialog} onClose={handleDialogClose}>
           <DialogTitle>Submission Successful</DialogTitle>
           <DialogContent>
@@ -536,7 +521,6 @@ function App() {
           </DialogActions>
         </Dialog>
 
-        {/* Snackbar for notifications */}
         <Snackbar
           open={snackbarOpen}
           autoHideDuration={4000}
@@ -545,7 +529,7 @@ function App() {
         >
           <Alert
             onClose={handleSnackbarClose}
-            severity="success"
+            severity={snackbarSeverity}
             sx={{ width: "100%" }}
           >
             {snackbarMessage}
