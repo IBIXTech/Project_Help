@@ -378,7 +378,6 @@ function App() {
     try {
       const res = await fetch(process.env.REACT_APP_PS, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(projectForm),
       });
       if (res.ok) {
@@ -415,7 +414,6 @@ function App() {
     try {
       const res = await fetch(process.env.REACT_APP_QF, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(queryForm),
       });
       if (res.ok) {
@@ -443,7 +441,6 @@ function App() {
     try {
       const res = await fetch(process.env.REACT_APP_HF, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(helpForm),
       });
       if (res.ok) {
